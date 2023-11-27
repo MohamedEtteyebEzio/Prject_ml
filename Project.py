@@ -1,15 +1,12 @@
 # Importation des packages nécessaires
 import warnings
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 # Ignorer les avertissements
 warnings.filterwarnings("ignore", category=FutureWarning, module="seaborn")
@@ -17,11 +14,8 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning, module="sklearn")
 from matplotlib import gridspec
 
 # Chargement du jeu de données depuis le fichier CSV en utilisant pandas
-# La meilleure méthode est de monter le lecteur sur Colab et
-# de copier le chemin d'accès du fichier CSV
 data = pd.read_csv("creditcard.csv")
 
-# Jeter un coup d'œil aux données
 data.head(10)
 
 # Afficher la forme des données
@@ -96,7 +90,7 @@ yData = Y.values
 # Utilisation de Scikit-learn pour diviser les données en ensembles d'entraînement et de test
 from sklearn.model_selection import train_test_split
 # Diviser les données en ensembles d'entraînement et de test
-xTrain, xTest, yTrain, yTest = train_test_split(xData, yData, test_size=0.2, random_state=42)
+xTrain, xTest, yTrain, yTest = train_test_split(xData, yData, test_size=0.3, random_state=42)
 
 # Création du modèle de classification Random Forest
 from sklearn.ensemble import RandomForestClassifier
@@ -109,9 +103,9 @@ yPred = rfc.predict(xTest)
 
 # Évaluation du classificateur
 # Impression de chaque score du classificateur
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import  accuracy_score
 from sklearn.metrics import precision_score, recall_score
-from sklearn.metrics import f1_score, matthews_corrcoef
+from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
 
 #n_outliers = len(fraud)
@@ -141,10 +135,6 @@ plt.title("Matrice de confusion")
 plt.ylabel('Classe réelle')
 plt.xlabel('Classe prédite')
 plt.show()
-
-# Calculer les probabilités prédites
-#yProb = rfc.predict_proba(xTest)[:, 1]
-
 # Création du modèle de régression logistique
 logistic_model = LogisticRegression()
 logistic_model.fit(xTrain, yTrain)
@@ -200,3 +190,36 @@ grid_search_logistic.fit(xTrain, yTrain)
 
 # Affichage des meilleurs paramètres
 print("Meilleurs paramètres pour la régression logistique :", grid_search_logistic.best_params_)
+
+
+# Matrice de confusion pour Random Forest
+conf_matrix_rf = confusion_matrix(yTest, grid_search_rf.best_estimator_.predict(xTest))
+print("Matrice de confusion pour Random Forest:")
+print(conf_matrix_rf)
+
+# Résumé des performances pour Random Forest
+summary_rf = pd.DataFrame({
+    'Modèle': ['Random Forest'],
+    'Exactitude': [accuracy_score(yTest, grid_search_rf.best_estimator_.predict(xTest))],
+    'Précision': [precision_score(yTest, grid_search_rf.best_estimator_.predict(xTest))],
+    'Rappel': [recall_score(yTest, grid_search_rf.best_estimator_.predict(xTest))],
+    'F1-Score': [f1_score(yTest, grid_search_rf.best_estimator_.predict(xTest))]
+})
+print("Résumé des performances pour Random Forest:")
+print(summary_rf)
+
+# Matrice de confusion pour Régression Logistique
+conf_matrix_logistic = confusion_matrix(yTest, grid_search_logistic.best_estimator_.predict(xTest))
+print("Matrice de confusion pour Régression Logistique:")
+print(conf_matrix_logistic)
+
+# Résumé des performances pour Régression Logistique
+summary_logistic = pd.DataFrame({
+    'Modèle': ['Régression Logistique'],
+    'Exactitude': [accuracy_score(yTest, grid_search_logistic.best_estimator_.predict(xTest))],
+    'Précision': [precision_score(yTest, grid_search_logistic.best_estimator_.predict(xTest))],
+    'Rappel': [recall_score(yTest, grid_search_logistic.best_estimator_.predict(xTest))],
+    'F1-Score': [f1_score(yTest, grid_search_logistic.best_estimator_.predict(xTest))]
+})
+print("Résumé des performances pour Régression Logistique:")
+print(summary_logistic)
